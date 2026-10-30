@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "TATAMI",
+    "slug": "tatami-cdl",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "tatami",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "fr.lecampdesloups.mobile"
+    },
+    "android": {
+      "package": "fr.lecampdesloups.mobile"
+    },
+    "plugins": [
+      "expo-status-bar",
+      "expo-font"
+    ]
+  }
+}
