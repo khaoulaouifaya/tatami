@@ -1,4 +1,4 @@
-# Le Camp des Loups — application mobile native
+# TATAMI — application mobile native
 
 Application React Native avec Expo, destinée à iOS et Android. L'interface est
 composée de composants natifs (`View`, `Text`, `TextInput`, `Pressable`) : ce
