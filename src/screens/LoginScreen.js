@@ -14,7 +14,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import {
   ArrowUpRight,
-  CircleAlert,
   Eye,
   EyeOff,
   Lock,
@@ -32,21 +31,18 @@ const COLORS = {
   crimson: '#E5322D',
   crimsonDark: '#BD0E15',
   crimsonBright: '#FF5449',
-  crimsonLight: '#FFB4AB',
-  errorBackground: '#93000A',
 }
 
 const Text = ({ style, ...props }) => (
   <NativeText {...props} style={[{ fontFamily: 'Chivo-Regular' }, style]} />
 )
 
-function LoginScreen({ onCreateAccount, onForgotPassword }) {
+function LoginScreen({ onCreateAccount, onForgotPassword, onLoginSuccess }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [focusedField, setFocusedField] = useState(null)
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [hasError, setHasError] = useState(false)
   const timer = useRef(null)
 
   useEffect(() => () => clearTimeout(timer.current), [])
@@ -54,11 +50,10 @@ function LoginScreen({ onCreateAccount, onForgotPassword }) {
   function handleSubmit() {
     if (isLoading) return
 
-    setHasError(false)
     setIsLoading(true)
     timer.current = setTimeout(() => {
       setIsLoading(false)
-      setHasError(true)
+      onLoginSuccess()
     }, 1500)
   }
 
@@ -69,10 +64,6 @@ function LoginScreen({ onCreateAccount, onForgotPassword }) {
     }
 
     Alert.alert(action, 'Cette fonctionnalité sera disponible prochainement.')
-  }
-
-  function clearError() {
-    if (hasError) setHasError(false)
   }
 
   return (
@@ -118,7 +109,6 @@ function LoginScreen({ onCreateAccount, onForgotPassword }) {
                   keyboardType="email-address"
                   onChangeText={(value) => {
                     setEmail(value)
-                    clearError()
                   }}
                   onBlur={() => setFocusedField(null)}
                   onFocus={() => setFocusedField('email')}
@@ -148,7 +138,6 @@ function LoginScreen({ onCreateAccount, onForgotPassword }) {
                   autoComplete="current-password"
                   onChangeText={(value) => {
                     setPassword(value)
-                    clearError()
                   }}
                   onBlur={() => setFocusedField(null)}
                   onFocus={() => setFocusedField('password')}
@@ -188,17 +177,6 @@ function LoginScreen({ onCreateAccount, onForgotPassword }) {
               <Text style={styles.forgotText}>MOT DE PASSE OUBLIÉ ?</Text>
               <ArrowUpRight color={COLORS.muted} size={14} />
             </Pressable>
-
-            {hasError && (
-              <View
-                accessibilityLiveRegion="polite"
-                accessibilityRole="alert"
-                style={styles.errorBanner}
-              >
-                <CircleAlert color={COLORS.crimsonLight} size={18} strokeWidth={1.8} />
-                <Text style={styles.errorText}>Identifiants incorrects</Text>
-              </View>
-            )}
 
             <Pressable
               accessibilityRole="button"
@@ -359,24 +337,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontWeight: '800',
     letterSpacing: 1,
-  },
-  errorBanner: {
-    alignItems: 'center',
-    backgroundColor: COLORS.errorBackground,
-    borderColor: COLORS.errorBackground,
-    borderRadius: 4,
-    borderWidth: 1,
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 14,
-    minHeight: 46,
-    paddingHorizontal: 13,
-  },
-  errorText: {
-    color: COLORS.crimsonLight,
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.3,
   },
   submitButton: {
     alignItems: 'center',
