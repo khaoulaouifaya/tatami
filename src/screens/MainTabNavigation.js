@@ -23,8 +23,9 @@ import PlanningScreen from './PlanningScreen.js'
 import SessionDetailScreen from './SessionDetailScreen.js'
 import ParticipantSelectionScreen from './ParticipantSelectionScreen.js'
 import MyReservationsScreen from './MyReservationsScreen.js'
-import StaffCheckInScreen from './StaffCheckInScreen.js'
 import StaffScheduleScreen from './StaffScheduleScreen.js'
+import AttendanceListScreen from './AttendanceListScreen.js'
+import TechniquesLibraryScreen from './TechniquesLibraryScreen.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -229,7 +230,12 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             }}
           />
         ) : activeTab === 'attendance' && role === 'staff' ? (
-          <StaffCheckInScreen role={role} />
+          <AttendanceListScreen
+            onFinishCall={() => setActiveTab('sessions')}
+            onOpenSessions={() => setActiveTab('sessions')}
+          />
+        ) : activeTab === 'techniques' ? (
+          <TechniquesLibraryScreen />
         ) : activeTab === 'sessions' && role === 'staff' ? (
           <StaffScheduleScreen
             onOpenAttendance={() => setActiveTab('attendance')}
