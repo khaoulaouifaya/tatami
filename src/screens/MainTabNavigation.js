@@ -17,6 +17,8 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import ProfileScreen from './ProfileScreen.js'
+import ChildProfileScreen, { EMPTY_CHILD } from './ChildProfileScreen.js'
+import ChildrenListScreen from './ChildrenListScreen.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -65,6 +67,112 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
     Object.hasOwn(TABS_BY_ROLE, initialRole) ? initialRole : 'adult',
   )
   const [activeTab, setActiveTab] = useState(TABS_BY_ROLE[role][0].id)
+  const [children, setChildren] = useState([
+    {
+      id: 'child-lea',
+      firstName: 'Léa',
+      lastName: 'Martin',
+      sex: 'F',
+      birthDate: '12/03/2016',
+      nationality: 'Française',
+      birthPlace: 'Paris, France',
+      certificateValid: true,
+      grade: 'JAUNE // 1 BARRETTE',
+      gradeColor: '#E4C52A',
+      monthlyAttendance: { count: 6, goal: 8 },
+      attendanceHistory: [
+        {
+          label: 'OCTOBRE 2026',
+          count: 6,
+          sessions: [
+            {
+              date: '29 OCT.',
+              title: 'JJB KIDS / TECHNIQUE',
+              coach: 'COACH : SARAH M.',
+              status: 'present',
+            },
+            {
+              date: '26 OCT.',
+              title: 'JJB KIDS / SPARRING',
+              coach: 'COACH : THOMAS R.',
+              status: 'present',
+            },
+            {
+              date: '22 OCT.',
+              title: 'JJB KIDS / TECHNIQUE',
+              coach: 'COACH : SARAH M.',
+              status: 'missed',
+            },
+          ],
+        },
+        {
+          label: 'SEPTEMBRE 2026',
+          count: 8,
+          sessions: [
+            {
+              date: '24 SEPT.',
+              title: 'JJB KIDS / TECHNIQUE',
+              coach: 'COACH : SARAH M.',
+              status: 'present',
+            },
+          ],
+        },
+      ],
+      media: [
+        { title: 'JJB KIDS — TECHNIQUE', subtitle: 'MERCREDI 29 OCTOBRE', variant: 'red' },
+        { title: 'JEUX & SPARRING', subtitle: 'LUNDI 26 OCTOBRE', variant: 'blue' },
+      ],
+    },
+    {
+      id: 'child-noah',
+      firstName: 'Noah',
+      lastName: 'Martin',
+      sex: 'H',
+      birthDate: '08/09/2020',
+      nationality: 'Française',
+      birthPlace: 'Paris, France',
+      certificateValid: false,
+      grade: 'GRISE // 1 BARRETTE',
+      gradeColor: '#B8B8BC',
+      monthlyAttendance: { count: 4, goal: 8 },
+      attendanceHistory: [
+        {
+          label: 'OCTOBRE 2026',
+          count: 4,
+          sessions: [
+            {
+              date: '27 OCT.',
+              title: 'BABY JJB / ÉVEIL',
+              coach: 'COACH : THOMAS R.',
+              status: 'present',
+            },
+            {
+              date: '20 OCT.',
+              title: 'BABY JJB / MOTRICITÉ',
+              coach: 'COACH : SARAH M.',
+              status: 'present',
+            },
+          ],
+        },
+        {
+          label: 'SEPTEMBRE 2026',
+          count: 5,
+          sessions: [
+            {
+              date: '22 SEPT.',
+              title: 'BABY JJB / ÉVEIL',
+              coach: 'COACH : THOMAS R.',
+              status: 'present',
+            },
+          ],
+        },
+      ],
+      media: [
+        { title: 'BABY JJB — ÉVEIL', subtitle: 'MARDI 27 OCTOBRE', variant: 'blue' },
+      ],
+    },
+  ])
+  const [selectedChild, setSelectedChild] = useState(null)
   const tabs = TABS_BY_ROLE[role]
   const activeTabInfo = tabs.find((tab) => tab.id === activeTab) ?? tabs[0]
   const ActiveIcon = activeTabInfo.icon
@@ -72,7 +180,24 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
   function selectRole(nextRole) {
     setRole(nextRole)
     setActiveTab(TABS_BY_ROLE[nextRole][0].id)
+    setSelectedChild(null)
     onRoleChange?.(nextRole)
+  }
+
+  function saveChild(updatedChild) {
+    if (String(updatedChild.id).startsWith('new-')) {
+      setChildren((current) => [
+        ...current,
+        { ...updatedChild, id: `child-${Date.now()}` },
+      ])
+    } else {
+      setChildren((current) =>
+        current.map((child) =>
+          child.id === updatedChild.id ? updatedChild : child,
+        ),
+      )
+    }
+    setSelectedChild(null)
   }
 
   return (
@@ -85,6 +210,25 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             onLogout={onLogout}
             onBack={() => setActiveTab(tabs[0].id)}
           />
+        ) : activeTab === 'children' ? (
+          selectedChild ? (
+            <ChildProfileScreen
+              child={selectedChild}
+              onBack={() => setSelectedChild(null)}
+              onSave={saveChild}
+            />
+          ) : (
+            <ChildrenListScreen
+              childProfiles={children}
+              onSelectChild={setSelectedChild}
+              onAddChild={() =>
+                setSelectedChild({
+                  ...EMPTY_CHILD,
+                  id: `new-${Date.now()}`,
+                })
+              }
+            />
+          )
         ) : (
           <>
             <View style={styles.header}>
