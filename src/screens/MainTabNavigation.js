@@ -5,6 +5,7 @@ import {
   BookOpen,
   CalendarDays,
   ClipboardList,
+  Images,
   UserRound,
   Users,
 } from 'lucide-react-native'
@@ -19,6 +20,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import ProfileScreen from './ProfileScreen.js'
 import ChildProfileScreen, { EMPTY_CHILD } from './ChildProfileScreen.js'
 import ChildrenListScreen from './ChildrenListScreen.js'
+import PlanningScreen from './PlanningScreen.js'
+import SessionDetailScreen from './SessionDetailScreen.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -51,9 +54,10 @@ const TABS_BY_ROLE = {
     { id: 'profile', label: 'PROFIL', title: 'Profil', icon: UserRound },
   ],
   staff: [
-    { id: 'sessions', label: 'SÉANCES', title: 'Mes séances', icon: Award },
+    { id: 'sessions', label: 'MES SÉANCES', title: 'Mes séances', icon: Award },
     { id: 'attendance', label: 'APPEL', title: 'Liste d’appel', icon: ClipboardList },
     { id: 'techniques', label: 'TECHNIQUES', title: 'Techniques', icon: Activity },
+    { id: 'media', label: 'MÉDIAS', title: 'Médias', icon: Images },
     { id: 'profile', label: 'PROFIL', title: 'Profil', icon: UserRound },
   ],
 }
@@ -173,6 +177,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
     },
   ])
   const [selectedChild, setSelectedChild] = useState(null)
+  const [selectedSession, setSelectedSession] = useState(null)
   const tabs = TABS_BY_ROLE[role]
   const activeTabInfo = tabs.find((tab) => tab.id === activeTab) ?? tabs[0]
   const ActiveIcon = activeTabInfo.icon
@@ -181,6 +186,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
     setRole(nextRole)
     setActiveTab(TABS_BY_ROLE[nextRole][0].id)
     setSelectedChild(null)
+    setSelectedSession(null)
     onRoleChange?.(nextRole)
   }
 
@@ -227,6 +233,19 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
                   id: `new-${Date.now()}`,
                 })
               }
+            />
+          )
+        ) : activeTab === 'schedule' || activeTab === 'sessions' ? (
+          selectedSession ? (
+            <SessionDetailScreen
+              session={selectedSession}
+              onBack={() => setSelectedSession(null)}
+            />
+          ) : (
+            <PlanningScreen
+              role={role}
+              onRoleChange={selectRole}
+              onOpenSession={setSelectedSession}
             />
           )
         ) : (
