@@ -5,7 +5,6 @@ import {
   BookOpen,
   CalendarDays,
   ClipboardList,
-  Images,
   UserRound,
   Users,
 } from 'lucide-react-native'
@@ -24,6 +23,8 @@ import PlanningScreen from './PlanningScreen.js'
 import SessionDetailScreen from './SessionDetailScreen.js'
 import ParticipantSelectionScreen from './ParticipantSelectionScreen.js'
 import MyReservationsScreen from './MyReservationsScreen.js'
+import StaffCheckInScreen from './StaffCheckInScreen.js'
+import StaffScheduleScreen from './StaffScheduleScreen.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -59,7 +60,6 @@ const TABS_BY_ROLE = {
     { id: 'sessions', label: 'MES SÉANCES', title: 'Mes séances', icon: Award },
     { id: 'attendance', label: 'APPEL', title: 'Liste d’appel', icon: ClipboardList },
     { id: 'techniques', label: 'TECHNIQUES', title: 'Techniques', icon: Activity },
-    { id: 'media', label: 'MÉDIAS', title: 'Médias', icon: Images },
     { id: 'profile', label: 'PROFIL', title: 'Profil', icon: UserRound },
   ],
 }
@@ -227,6 +227,13 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
               setSelectedSession(null)
               setActiveTab('schedule')
             }}
+          />
+        ) : activeTab === 'attendance' && role === 'staff' ? (
+          <StaffCheckInScreen role={role} />
+        ) : activeTab === 'sessions' && role === 'staff' ? (
+          <StaffScheduleScreen
+            onOpenAttendance={() => setActiveTab('attendance')}
+            onOpenPlanning={() => setActiveTab('schedule')}
           />
         ) : activeTab === 'children' ? (
           selectedChild ? (
