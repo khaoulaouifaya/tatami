@@ -46,7 +46,13 @@ const Text = ({ style, ...props }) => (
   <NativeText {...props} style={[{ fontFamily: 'Chivo-Regular' }, style]} />
 )
 
-function SessionDetailScreen({ onBack, initialState = 'available', session }) {
+function SessionDetailScreen({
+  onBack,
+  initialState = 'available',
+  onChooseParticipants,
+  role = 'adult',
+  session,
+}) {
   const [reservationState, setReservationState] = useState(initialState)
   const [waitlistJoined, setWaitlistJoined] = useState(false)
   const [cancellationAlert, setCancellationAlert] = useState(false)
@@ -311,7 +317,11 @@ function SessionDetailScreen({ onBack, initialState = 'available', session }) {
         ) : (
           <Pressable
             accessibilityRole="button"
-            onPress={handlePrimaryAction}
+            onPress={
+              reservationState === 'available' && role === 'parent'
+                ? onChooseParticipants
+                : handlePrimaryAction
+            }
             style={({ pressed }) => [
               reservationState === 'reserved' ? styles.secondaryAction : styles.primaryAction,
               pressed && styles.pressed,
@@ -326,7 +336,9 @@ function SessionDetailScreen({ onBack, initialState = 'available', session }) {
             >
               {reservationState === 'reserved'
                 ? 'ANNULER MA RÉSERVATION'
-                : 'RÉSERVER CE CRÉNEAU'}
+                : role === 'parent'
+                  ? 'CHOISIR LE PARTICIPANT'
+                  : 'RÉSERVER CE CRÉNEAU'}
             </Text>
           </Pressable>
         )}

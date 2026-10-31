@@ -22,6 +22,8 @@ import ChildProfileScreen, { EMPTY_CHILD } from './ChildProfileScreen.js'
 import ChildrenListScreen from './ChildrenListScreen.js'
 import PlanningScreen from './PlanningScreen.js'
 import SessionDetailScreen from './SessionDetailScreen.js'
+import ParticipantSelectionScreen from './ParticipantSelectionScreen.js'
+import MyReservationsScreen from './MyReservationsScreen.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -178,6 +180,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
   ])
   const [selectedChild, setSelectedChild] = useState(null)
   const [selectedSession, setSelectedSession] = useState(null)
+  const [choosingParticipant, setChoosingParticipant] = useState(false)
   const tabs = TABS_BY_ROLE[role]
   const activeTabInfo = tabs.find((tab) => tab.id === activeTab) ?? tabs[0]
   const ActiveIcon = activeTabInfo.icon
@@ -187,6 +190,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
     setActiveTab(TABS_BY_ROLE[nextRole][0].id)
     setSelectedChild(null)
     setSelectedSession(null)
+    setChoosingParticipant(false)
     onRoleChange?.(nextRole)
   }
 
@@ -216,6 +220,14 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             onLogout={onLogout}
             onBack={() => setActiveTab(tabs[0].id)}
           />
+        ) : activeTab === 'bookings' ? (
+          <MyReservationsScreen
+            role={role}
+            onOpenPlanning={() => {
+              setSelectedSession(null)
+              setActiveTab('schedule')
+            }}
+          />
         ) : activeTab === 'children' ? (
           selectedChild ? (
             <ChildProfileScreen
@@ -236,10 +248,21 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             />
           )
         ) : activeTab === 'schedule' || activeTab === 'sessions' ? (
-          selectedSession ? (
+          selectedSession && choosingParticipant ? (
+            <ParticipantSelectionScreen
+              session={selectedSession}
+              onBack={() => setChoosingParticipant(false)}
+              onConfirm={() => {
+                setChoosingParticipant(false)
+                setSelectedSession(null)
+              }}
+            />
+          ) : selectedSession ? (
             <SessionDetailScreen
+              role={role}
               session={selectedSession}
               onBack={() => setSelectedSession(null)}
+              onChooseParticipants={() => setChoosingParticipant(true)}
             />
           ) : (
             <PlanningScreen
