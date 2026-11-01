@@ -263,6 +263,16 @@ function MemberSchedule({
 
 const ADULT_CLASSES = [
   {
+    id: 'adult-waitlist',
+    title: 'JJB GI AVANCÉ — SPARRING',
+    time: '20:30 – 22:30',
+    dateLabel: 'Mardi 24 novembre 2026',
+    coach: 'COACH : MEHDI',
+    availability: 'COMPLET • LISTE D’ATTENTE',
+    status: 'full',
+    places_restantes: 0,
+  },
+  {
     id: 'nogi-open-mat',
     title: 'NO-GI OPEN MAT',
     time: 'MERCREDI · 20:30 — 22:00',
@@ -279,6 +289,16 @@ const ADULT_CLASSES = [
 ]
 
 const PARENT_CLASSES = [
+  {
+    id: 'kids-waitlist',
+    title: 'JJB KIDS & CADETS (10–15 ANS)',
+    time: '18:00 – 19:30',
+    dateLabel: 'Mercredi 25 novembre 2026',
+    coach: 'COACH : MEHDI',
+    availability: 'COMPLET • LISTE D’ATTENTE',
+    status: 'full',
+    places_restantes: 0,
+  },
   {
     id: 'kids-louveteaux',
     title: 'JJB LOUVETEAUX',
@@ -315,7 +335,7 @@ function ClassCard({ classItem, parent, reserved, onPress, onOpenDetail }) {
       </Pressable>
       <Pressable
         accessibilityRole="button"
-        onPress={onPress}
+        onPress={classItem.status === 'full' ? onOpenDetail : onPress}
         style={({ pressed }) => [
           styles.reserveButton,
           reserved && styles.reserveButtonActive,
@@ -323,7 +343,7 @@ function ClassCard({ classItem, parent, reserved, onPress, onOpenDetail }) {
         ]}
       >
         <Text style={[styles.reserveButtonText, reserved && styles.reserveButtonTextActive]}>
-          {reserved ? 'ANNULER' : 'RÉSERVER'}{parent ? ' ›' : ''}
+          {classItem.status === 'full' ? 'LISTE D’ATTENTE' : reserved ? 'ANNULER' : 'RÉSERVER'}{parent ? ' ›' : ''}
         </Text>
       </Pressable>
     </View>

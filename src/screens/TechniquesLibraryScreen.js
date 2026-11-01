@@ -83,7 +83,7 @@ const Text = ({ style, ...props }) => (
   <NativeText {...props} style={[{ color: COLORS.primary, fontFamily: 'Chivo-Regular' }, style]} />
 )
 
-function TechniquesLibraryScreen() {
+function TechniquesLibraryScreen({ onOpenTechnique }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('+ PASSAGES DE GARDE')
   const [level, setLevel] = useState('◼ FONDAMENTAUX / BLANC')
@@ -263,6 +263,7 @@ function TechniquesLibraryScreen() {
                 video={video}
                 bookmarked={Boolean(bookmarks[video.id])}
                 onBookmark={() => toggleBookmark(video.id)}
+                onOpen={() => onOpenTechnique?.(video)}
               />
             ))}
             <View style={styles.curriculum}>
@@ -288,7 +289,7 @@ function TechniquesLibraryScreen() {
   )
 }
 
-function VideoCard({ video, bookmarked, onBookmark }) {
+function VideoCard({ video, bookmarked, onBookmark, onOpen }) {
   return (
     <View style={styles.videoCard}>
       <View style={styles.thumbnail}>
@@ -305,7 +306,7 @@ function VideoCard({ video, bookmarked, onBookmark }) {
           <Pressable
             accessibilityLabel={`Lire ${video.title}`}
             accessibilityRole="button"
-            onPress={() => Alert.alert('Lecture vidéo', `${video.title} — démonstration vidéo.`)}
+            onPress={onOpen}
             style={styles.playButton}
           >
             <Play color={COLORS.primary} fill={COLORS.primary} size={21} />
@@ -339,7 +340,7 @@ function VideoCard({ video, bookmarked, onBookmark }) {
           </View>
           <Pressable
             accessibilityRole="button"
-            onPress={() => Alert.alert('Module technique', `Ouverture de « ${video.title} » en mode démo.`)}
+            onPress={onOpen}
             style={styles.launchButton}
           >
             <Text style={styles.launchText}>LANCER LE MODULE</Text>

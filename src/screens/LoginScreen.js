@@ -37,7 +37,7 @@ const Text = ({ style, ...props }) => (
   <NativeText {...props} style={[{ fontFamily: 'Chivo-Regular' }, style]} />
 )
 
-function LoginScreen({ onCreateAccount, onForgotPassword, onLoginSuccess }) {
+function LoginScreen({ onCreateAccount, onForgotPassword, onLoginSuccess, onOfflineDemo }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [focusedField, setFocusedField] = useState(null)
@@ -210,6 +210,15 @@ function LoginScreen({ onCreateAccount, onForgotPassword, onLoginSuccess }) {
                 <Text style={styles.createAccountText}>CRÉER UN COMPTE</Text>
                 <ArrowUpRight color={COLORS.primary} size={15} />
               </Pressable>
+              {__DEV__ && (
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={onOfflineDemo}
+                  style={styles.offlineDemoButton}
+                >
+                  <Text style={styles.offlineDemoText}>TESTER L’ÉCRAN HORS CONNEXION</Text>
+                </Pressable>
+              )}
             </View>
           </ScrollView>
       </KeyboardAvoidingView>
@@ -390,6 +399,21 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '900',
     letterSpacing: 1.4,
+  },
+  offlineDemoButton: {
+    alignSelf: 'flex-start',
+    borderColor: COLORS.border,
+    borderRadius: 4,
+    borderWidth: 1,
+    marginTop: 10,
+    paddingHorizontal: 9,
+    paddingVertical: 7,
+  },
+  offlineDemoText: {
+    color: COLORS.secondary,
+    fontFamily: 'Anybody-Bold',
+    fontSize: 7,
+    letterSpacing: 0.4,
   },
 })
 

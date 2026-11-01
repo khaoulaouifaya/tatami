@@ -116,6 +116,7 @@ function calculateAge(dateString) {
 }
 
 function ProfileScreen({
+  onOpenCompensation,
   onLogout,
   initialProfile = DEFAULT_PROFILE,
   role = 'adult',
@@ -569,6 +570,18 @@ function ProfileScreen({
             ))}
           </View>
 
+          {role === 'staff' && (
+            <Pressable
+              accessibilityRole="button"
+              onPress={onOpenCompensation}
+              style={styles.compensationLink}
+            >
+              <Award color={COLORS.crimson} size={22} />
+              <Text style={styles.compensationLabel}>MON DÉFRAIEMENT</Text>
+              <ChevronRight color={COLORS.primary} size={20} />
+            </Pressable>
+          )}
+
           <Pressable
             accessibilityRole="button"
             onPress={handleLogout}
@@ -637,6 +650,8 @@ function MediaTile({ title, subtitle, variant }) {
 }
 
 const styles = StyleSheet.create({
+  compensationLink: { minHeight: 58, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: 4, marginBottom: 16 },
+  compensationLabel: { flex: 1, color: COLORS.primary, fontFamily: 'Anybody-Bold', fontSize: 13 },
   safeArea: {
     backgroundColor: COLORS.canvas,
     flex: 1,

@@ -61,6 +61,7 @@ function ParticipantSelectionScreen({
   onConfirm,
   session,
   parentName = 'Alexandre Dupont',
+  singleSelection = false,
 }) {
   const [selectedIds, setSelectedIds] = useState(['sarah'])
   const selectedMembers = useMemo(
@@ -73,7 +74,7 @@ function ParticipantSelectionScreen({
     setSelectedIds((current) =>
       current.includes(member.id)
         ? current.filter((id) => id !== member.id)
-        : [...current, member.id],
+        : singleSelection ? [member.id] : [...current, member.id],
     )
   }
 

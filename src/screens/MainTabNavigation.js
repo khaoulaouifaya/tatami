@@ -5,10 +5,12 @@ import {
   BookOpen,
   CalendarDays,
   ClipboardList,
+  Images,
   UserRound,
   Users,
 } from 'lucide-react-native'
 import {
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -26,6 +28,11 @@ import MyReservationsScreen from './MyReservationsScreen.js'
 import StaffScheduleScreen from './StaffScheduleScreen.js'
 import AttendanceListScreen from './AttendanceListScreen.js'
 import TechniquesLibraryScreen from './TechniquesLibraryScreen.js'
+import TechniqueDetailScreen from './TechniqueDetailScreen.js'
+import CompensationScreen from './CompensationScreen.js'
+import AddMediaScreen from './AddMediaScreen.js'
+import MediaViewerScreen from './MediaViewerScreen.js'
+import { demoAlbum, demoVideos } from '../data/mediaDemo.js'
 
 const COLORS = {
   canvas: '#0B0B0B',
@@ -61,6 +68,7 @@ const TABS_BY_ROLE = {
     { id: 'sessions', label: 'MES SÉANCES', title: 'Mes séances', icon: Award },
     { id: 'attendance', label: 'APPEL', title: 'Liste d’appel', icon: ClipboardList },
     { id: 'techniques', label: 'TECHNIQUES', title: 'Techniques', icon: Activity },
+    { id: 'media', label: 'MÉDIAS', title: 'Médias', icon: Images },
     { id: 'profile', label: 'PROFIL', title: 'Profil', icon: UserRound },
   ],
 }
@@ -74,6 +82,8 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
     Object.hasOwn(TABS_BY_ROLE, initialRole) ? initialRole : 'adult',
   )
   const [activeTab, setActiveTab] = useState(TABS_BY_ROLE[role][0].id)
+  const [showCompensation, setShowCompensation] = useState(false)
+  const [previewMedia, setPreviewMedia] = useState(null)
   const [children, setChildren] = useState([
     {
       id: 'child-lea',
@@ -181,16 +191,20 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
   ])
   const [selectedChild, setSelectedChild] = useState(null)
   const [selectedSession, setSelectedSession] = useState(null)
+  const [selectedTechnique, setSelectedTechnique] = useState(null)
+  const [singleParticipant, setSingleParticipant] = useState(false)
   const [choosingParticipant, setChoosingParticipant] = useState(false)
   const tabs = TABS_BY_ROLE[role]
   const activeTabInfo = tabs.find((tab) => tab.id === activeTab) ?? tabs[0]
   const ActiveIcon = activeTabInfo.icon
 
   function selectRole(nextRole) {
+    setShowCompensation(false)
     setRole(nextRole)
     setActiveTab(TABS_BY_ROLE[nextRole][0].id)
     setSelectedChild(null)
     setSelectedSession(null)
+    setSelectedTechnique(null)
     setChoosingParticipant(false)
     onRoleChange?.(nextRole)
   }
@@ -214,11 +228,21 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
   return (
     <SafeAreaView edges={['top', 'bottom']} style={styles.safeArea}>
       <View style={styles.screen}>
-        {activeTab === 'profile' ? (
+        {activeTab === 'profile' && role === 'staff' && showCompensation ? (
+          <CompensationScreen onBack={() => setShowCompensation(false)} />
+        ) : activeTab === 'media' && role === 'staff' ? (
+          <AddMediaScreen
+            embedded
+            onPreview={(file) => setPreviewMedia(
+              file.uri ? file : file.type === 'video' ? demoVideos[0] : demoAlbum[3],
+            )}
+          />
+        ) : activeTab === 'profile' ? (
           <ProfileScreen
             embedded
             role={role}
             onLogout={onLogout}
+            onOpenCompensation={() => setShowCompensation(true)}
             onBack={() => setActiveTab(tabs[0].id)}
           />
         ) : activeTab === 'bookings' ? (
@@ -234,8 +258,13 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             onFinishCall={() => setActiveTab('sessions')}
             onOpenSessions={() => setActiveTab('sessions')}
           />
+        ) : selectedTechnique ? (
+          <TechniqueDetailScreen
+            role={role}
+            onBack={() => setSelectedTechnique(null)}
+          />
         ) : activeTab === 'techniques' ? (
-          <TechniquesLibraryScreen />
+          <TechniquesLibraryScreen onOpenTechnique={setSelectedTechnique} />
         ) : activeTab === 'sessions' && role === 'staff' ? (
           <StaffScheduleScreen
             onOpenAttendance={() => setActiveTab('attendance')}
@@ -263,6 +292,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
         ) : activeTab === 'schedule' || activeTab === 'sessions' ? (
           selectedSession && choosingParticipant ? (
             <ParticipantSelectionScreen
+              singleSelection={singleParticipant}
               session={selectedSession}
               onBack={() => setChoosingParticipant(false)}
               onConfirm={() => {
@@ -275,7 +305,10 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
               role={role}
               session={selectedSession}
               onBack={() => setSelectedSession(null)}
-              onChooseParticipants={() => setChoosingParticipant(true)}
+              onChooseParticipants={(options) => {
+                setSingleParticipant(options?.singleSelection === true)
+                setChoosingParticipant(true)
+              }}
             />
           ) : (
             <PlanningScreen
@@ -368,7 +401,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
                 accessibilityRole="tab"
                 accessibilityState={{ selected: isActive }}
                 key={tab.id}
-                onPress={() => setActiveTab(tab.id)}
+                onPress={() => { setShowCompensation(false); setActiveTab(tab.id) }}
                 style={styles.tab}
               >
                 <TabIcon
@@ -386,6 +419,18 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
             )
           })}
         </View>
+        <Modal
+          visible={!!previewMedia}
+          animationType="slide"
+          onRequestClose={() => setPreviewMedia(null)}
+        >
+          {previewMedia && (
+            <MediaViewerScreen
+              media={previewMedia}
+              onClose={() => setPreviewMedia(null)}
+            />
+          )}
+        </Modal>
       </View>
     </SafeAreaView>
   )

@@ -15,7 +15,26 @@
     },
     "plugins": [
       "expo-status-bar",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Autoriser TATAMI à sélectionner vos photos et vidéos.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Autoriser TATAMI à accéder aux médias.",
+          "savePhotosPermission": "Autoriser TATAMI à enregistrer vos médias.",
+          "granularPermissions": [
+            "photo",
+            "video"
+          ]
+        }
+      ],
+      "expo-video"
     ]
   }
 }

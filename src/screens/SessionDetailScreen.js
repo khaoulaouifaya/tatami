@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import WaitlistScreen from './WaitlistScreen.js'
+import useWaitlist from '../hooks/useWaitlist.js'
 import {
   ArrowLeft,
   Bell,
@@ -12,6 +15,7 @@ import {
 } from 'lucide-react-native'
 import {
   Alert,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -53,8 +57,12 @@ function SessionDetailScreen({
   role = 'adult',
   session,
 }) {
-  const [reservationState, setReservationState] = useState(initialState)
-  const [waitlistJoined, setWaitlistJoined] = useState(false)
+  const [reservationState, setReservationState] = useState(
+    session?.status === 'full' || session?.places_restantes === 0 ? 'full' : initialState,
+  )
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
+  const waitlist = useWaitlist()
+  const waitlistJoined = waitlist.status === 'waiting' || waitlist.status === 'offered'
   const [cancellationAlert, setCancellationAlert] = useState(false)
 
   const title = session?.title ?? 'JJB KIDS // MINI-LOUPS & LOUVETEAUX'
@@ -69,8 +77,8 @@ function SessionDetailScreen({
       setReservationState('available')
       Alert.alert('Réservation annulée', 'Votre place a été libérée.')
     } else if (reservationState === 'full') {
-      setWaitlistJoined(true)
-      Alert.alert('Liste d’attente', 'Vous êtes inscrit au rang 3.')
+      if (!waitlistJoined) waitlist.changeStatus('waiting')
+      setWaitlistOpen(true)
     } else {
       Alert.alert('Annulation impossible', 'Contactez le club pour toute situation urgente.')
     }
@@ -78,6 +86,23 @@ function SessionDetailScreen({
 
   return (
     <View style={styles.screen}>
+      <Modal visible={waitlistOpen} animationType="slide" onRequestClose={() => setWaitlistOpen(false)}>
+        <SafeAreaView style={styles.screen}>
+          {waitlist.status !== 'idle' && <WaitlistScreen
+            waitlist={waitlist}
+            session={session}
+            role={role}
+            onBack={() => setWaitlistOpen(false)}
+            onBrowse={() => { setWaitlistOpen(false); onBack?.() }}
+            onConfirmed={() => {
+              if (role === 'parent') {
+                setWaitlistOpen(false)
+                onChooseParticipants?.({ singleSelection: true })
+              } else setReservationState('reserved')
+            }}
+          />}
+        </SafeAreaView>
+      </Modal>
       <View style={styles.header}>
         <Pressable
           accessibilityLabel="Retour au planning"
@@ -124,7 +149,7 @@ function SessionDetailScreen({
                   key={item.id}
                   onPress={() => {
                     setReservationState(item.id)
-                    setWaitlistJoined(false)
+                    waitlist.changeStatus('idle')
                   }}
                   style={[styles.demoOption, selected && styles.demoOptionSelected]}
                 >
@@ -293,7 +318,7 @@ function SessionDetailScreen({
               style={({ pressed }) => [styles.primaryAction, pressed && styles.pressed]}
             >
               <Text style={styles.primaryActionText}>
-                {waitlistJoined ? 'INSCRIPTION LISTE D’ATTENTE CONFIRMÉE (RANG 3)' : 'S’INSCRIRE SUR LISTE D’ATTENTE (RANG 3)'}
+                {waitlistJoined ? 'VOIR MA LISTE D’ATTENTE (RANG 3)' : 'S’INSCRIRE SUR LISTE D’ATTENTE (RANG 3)'}
               </Text>
             </Pressable>
             <Pressable
