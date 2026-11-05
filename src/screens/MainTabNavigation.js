@@ -31,6 +31,7 @@ import TechniquesLibraryScreen from './TechniquesLibraryScreen.js'
 import TechniqueDetailScreen from './TechniqueDetailScreen.js'
 import CompensationScreen from './CompensationScreen.js'
 import AddMediaScreen from './AddMediaScreen.js'
+import StaffMediaGalleryScreen from './StaffMediaGalleryScreen.js'
 import MediaViewerScreen from './MediaViewerScreen.js'
 import { demoAlbum, demoVideos } from '../data/mediaDemo.js'
 
@@ -83,6 +84,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
   )
   const [activeTab, setActiveTab] = useState(TABS_BY_ROLE[role][0].id)
   const [showCompensation, setShowCompensation] = useState(false)
+  const [addingMedia, setAddingMedia] = useState(false)
   const [previewMedia, setPreviewMedia] = useState(null)
   const [children, setChildren] = useState([
     {
@@ -200,6 +202,7 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
 
   function selectRole(nextRole) {
     setShowCompensation(false)
+    setAddingMedia(false)
     setRole(nextRole)
     setActiveTab(TABS_BY_ROLE[nextRole][0].id)
     setSelectedChild(null)
@@ -230,11 +233,28 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
       <View style={styles.screen}>
         {activeTab === 'profile' && role === 'staff' && showCompensation ? (
           <CompensationScreen onBack={() => setShowCompensation(false)} />
-        ) : activeTab === 'media' && role === 'staff' ? (
+        ) : activeTab === 'media' && role === 'staff' && addingMedia ? (
           <AddMediaScreen
             embedded
+            onBack={() => setAddingMedia(false)}
             onPreview={(file) => setPreviewMedia(
               file.uri ? file : file.type === 'video' ? demoVideos[0] : demoAlbum[3],
+            )}
+          />
+        ) : activeTab === 'media' && role === 'staff' ? (
+          <StaffMediaGalleryScreen
+            onBack={() => setActiveTab('sessions')}
+            onAddMedia={() => setAddingMedia(true)}
+            onPreview={(file) => setPreviewMedia(
+              file.type === 'video'
+                ? demoVideos[0]
+                : {
+                    id: file.id,
+                    type: 'image',
+                    title: file.caption,
+                    caption: file.caption,
+                    uri: file.uri,
+                  },
             )}
           />
         ) : activeTab === 'profile' ? (
@@ -401,7 +421,11 @@ function MainTabNavigation({ initialRole = 'adult', onRoleChange, onLogout }) {
                 accessibilityRole="tab"
                 accessibilityState={{ selected: isActive }}
                 key={tab.id}
-                onPress={() => { setShowCompensation(false); setActiveTab(tab.id) }}
+                onPress={() => {
+                  setShowCompensation(false)
+                  setAddingMedia(false)
+                  setActiveTab(tab.id)
+                }}
                 style={styles.tab}
               >
                 <TabIcon

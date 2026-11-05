@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import {
   ArrowLeftRight,
+  ArrowLeft,
   Bell,
   Check,
   ChevronRight,
@@ -34,7 +35,7 @@ import {
 } from "../components/media/MediaUI";
 import { initialFiles, students } from "../data/mediaDemo";
 
-export default function AddMediaScreen({ embedded = false, onPreview }) {
+export default function AddMediaScreen({ embedded = false, onBack, onPreview }) {
   const [scope, setScope] = useState("some");
   const [selected, setSelected] = useState(["mehdi", "sarah", "lucas"]);
   const [query, setQuery] = useState("");
@@ -122,6 +123,13 @@ export default function AddMediaScreen({ embedded = false, onPreview }) {
       >
         <View style={s.between}>
           <View style={s.row}>
+            {embedded && onBack && (
+              <IconButton
+                icon={ArrowLeft}
+                label="Retour à la médiathèque"
+                onPress={onBack}
+              />
+            )}
             <Label style={st.brand}>TATAMI</Label>
             <Label style={s.badge}>CDL STAFF</Label>
           </View>
